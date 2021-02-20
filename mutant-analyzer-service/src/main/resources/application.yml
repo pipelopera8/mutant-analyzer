@@ -1,0 +1,13 @@
+server:
+  port: 7220
+
+spring:
+  application:
+    name: MutantAnalyzer
+
+  rabbitmq:
+    dynamic: true
+    port: 5672
+    username: guest
+    password: guest
+    host: localhost
