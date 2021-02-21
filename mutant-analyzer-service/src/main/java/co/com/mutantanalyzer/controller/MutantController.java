@@ -15,7 +15,7 @@ public class MutantController {
 	@Autowired
 	private MutantService mutantService;
 
-	@PostMapping
+	@PostMapping(value = "/mutant")
 	public ResponseEntity<Object> ismutant(@RequestBody DnaDTO dna) {
 		return mutantService.isMutant(dna);
 	}

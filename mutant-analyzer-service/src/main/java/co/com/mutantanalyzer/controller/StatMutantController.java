@@ -16,7 +16,7 @@ public class StatMutantController {
 	@Autowired
 	private MutantService mutantService;
 
-	@GetMapping
+	@GetMapping(value = "/stats")
 	public ResponseEntity<Object> getStats() throws MutantAnalyzerExceptionHandler {
 		ResponseEntity<Object> response = null;
 		try {

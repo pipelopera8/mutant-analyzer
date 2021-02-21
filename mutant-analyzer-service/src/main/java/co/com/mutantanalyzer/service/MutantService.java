@@ -50,12 +50,17 @@ public class MutantService {
 						count++;
 					}
 				}
-				for (String string : converterRowToColumn(dna.getDna())) {
-					if ((checkRow(string))) {
-						count++;
+				if (count < 2) {
+					for (String string : converterRowToColumn(dna.getDna())) {
+						if ((checkRow(string))) {
+							count++;
+						}
 					}
 				}
-				if (count <= 1) {
+				if(count < 2) {
+					count += evaluateDiagonal(getMatriz(dna.getDna()));
+				}
+				if (count < 2) {
 					log.info("No es un mutante");
 					mutant.setMutant(false);
 					send(mutant);
@@ -153,7 +158,9 @@ public class MutantService {
 		Long countAll = mutantRepository.count();
 		Long countMutant = mutantRepository.countByMutantTrue();
 		Long countHuman = countAll - countMutant;
-		if(countHuman != 0) {
+		if(countHuman == 0) {
+			ratio = 1D;
+		} else {
 			ratio = countMutant.doubleValue()/countHuman.doubleValue();
 		}
 		stats.setCount_human_dna(countHuman);
@@ -161,4 +168,49 @@ public class MutantService {
 		stats.setRatio(ratio);
 		return new ResponseEntity<>(stats, HttpStatus.OK);
 	}
+
+	public static int evaluateDiagonal(String[][] dna) throws MutantAnalyzerExceptionHandler {    
+        String[] principal = new String[dna.length];
+        String[] secondary = new String[dna.length];
+        int count = 0;        
+        for(int i=0;i<dna.length;i++){
+            for(int j=0;j<dna[i].length;j++){
+                if(i==j){
+                    principal[i] = dna[i][j];
+                }
+                 
+                if(i+j == dna.length-1){
+                    secondary[i] = dna[i][j];
+                }
+            }
+        }
+        String charDna = "";
+        for (int i = 0; i < principal.length; i++) {
+        	charDna += principal[i];
+		}
+        if ((checkRow(charDna))) {
+			count++;
+		}
+        charDna = "";
+        for (int i = 0; i < secondary.length; i++) {
+        	charDna += secondary[i];
+        }
+        if ((checkRow(charDna))) {
+        	count++;
+        }
+        return count;
+    }
+     
+    private static String[][] getMatriz(String[] dnas){
+    	char stringArray[] = dnas[0].toCharArray();
+    	String[][] charDna = new String[stringArray.length][stringArray.length];
+        for (int i = 0; i < stringArray.length; i++) {
+        	char dnaChar[] = dnas[i].toCharArray();
+        	for (int j = 0; j < dnaChar.length; j++) {
+        		charDna[i][j] = String.valueOf(dnaChar[j]);
+        	}
+        }
+        return charDna;
+    }
+    
 }
