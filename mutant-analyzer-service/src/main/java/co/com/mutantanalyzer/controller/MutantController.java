@@ -15,8 +15,14 @@ public class MutantController {
 	@Autowired
 	private MutantService mutantService;
 
+	/**
+	 * Método que determina si una cadena de adn es mutante o humano
+	 * @param dna
+	 * @return
+	 */
 	@PostMapping(value = "/mutant")
 	public ResponseEntity<Object> ismutant(@RequestBody DnaDTO dna) {
+		
 		return mutantService.isMutant(dna);
 	}
 }

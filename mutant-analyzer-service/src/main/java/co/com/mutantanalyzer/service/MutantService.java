@@ -10,7 +10,6 @@ import co.com.mutantanalyzer.dto.DnaDTO;
 import co.com.mutantanalyzer.dto.StatsDTO;
 import co.com.mutantanalyzer.general.exception.MutantAnalyzerExceptionHandler;
 import co.com.mutantanalyzer.model.Mutant;
-import co.com.mutantanalyzer.rabbitmq.Sender;
 import co.com.mutantanalyzer.repository.MutantRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,11 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 public class MutantService {
 
 	@Autowired
-	private Sender sender;
-
-	@Autowired
 	private MutantRepository mutantRepository;
 
+	final static String A = "AAAA";
+	final static String C = "CCCC";
+	final static String G = "GGGG";
+	final static String T = "TTTT";
+	
 	/**
 	 * Método en cargado en determinar si la cadena de adn ingresada es un mutante o
 	 * no
@@ -42,45 +43,62 @@ public class MutantService {
 	public ResponseEntity<Object> isMutant(DnaDTO dna) {
 		log.info("Comienza el proceo de verificación de adn, que determina si es mutante o no");
 		Mutant mutant = new Mutant();
+		ResponseEntity<Object> response = null;
 		try {
 			int count = 0;
+			log.info("Valida si la cadena de adn esta vacia");
 			if (dna != null && dna.getDna() != null) {
+				log.info("Se evalua la matriz de adn primero por filas");
 				for (String string : dna.getDna()) {
 					if ((checkRow(string))) {
 						count++;
 					}
 				}
+				log.info(
+						"Si en las filas ya encontro por lo menos dos conincidencias deja de evaluar el resto de la matriz");
 				if (count < 2) {
+					log.info("Convierte las columnas en filas para hacer la misma evaluación por filas");
 					for (String string : converterRowToColumn(dna.getDna())) {
 						if ((checkRow(string))) {
 							count++;
 						}
 					}
 				}
-				if(count < 2) {
+				log.info(
+						"Si con las filas y las columnas ya encontro por lo menos dos conincidencias deja de evaluar el resto de la matriz");
+				if (count < 2) {
+					log.info(
+							"Evalua las diagonales, tanto la principal como la inversa para deerminar si tiene o no mas coincidencias de mutante");
 					count += evaluateDiagonal(getMatriz(dna.getDna()));
 				}
+				log.info(
+						"Determina si  es un mutante o un humano, si es un mutante es porque el contador de concidiencias es por menos de 2 o mas");
 				if (count < 2) {
 					log.info("No es un mutante");
 					mutant.setMutant(false);
-					send(mutant);
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+					response = new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				} else {
 					log.info("Si es un mutante");
 					mutant.setMutant(true);
-					send(mutant);
-					return new ResponseEntity<>(HttpStatus.OK);
+					response = new ResponseEntity<>(HttpStatus.OK);
 				}
 			} else {
 				mutant.setMutant(false);
-				send(mutant);
-				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+				response = new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
 		} catch (MutantAnalyzerExceptionHandler e) {
+			log.info("si la cadena tiene alguna letra diferente de acgt");
 			mutant.setMutant(false);
-			send(mutant);
-			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			response = new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
+		
+		new Thread() {
+			public void run() {
+				mutantRepository.save(mutant);
+			}
+		}.start();
+		
+		return response;
 	}
 
 	/**
@@ -90,21 +108,8 @@ public class MutantService {
 	 * @return
 	 */
 	private static boolean checkRow(String dna) throws MutantAnalyzerExceptionHandler {
-		char stringArray[] = dna.toCharArray();
-		int ocurrence = 1;
-		for (int i = 0; i < stringArray.length; i++) {
-			if (i + 1 < stringArray.length) {
-				if (stringArray[i] != 'A' && stringArray[i] != 'C' && stringArray[i] != 'G' && stringArray[i] != 'T') {
-					throw new MutantAnalyzerExceptionHandler("Cadena invalida");
-				}
-				if (stringArray[i] == stringArray[i + 1]) {
-					ocurrence++;
-				}
-			}
-			if (ocurrence >= 4) {
-				return true;
-			}
-		}
+		if(dna.contains(A) || dna.contains(C) || dna.contains(G) ||dna.contains(T))
+			return true;
 		return false;
 	}
 
@@ -135,16 +140,6 @@ public class MutantService {
 		return dnaReturn;
 	}
 
-	private void send(Mutant mutant) {
-		new Thread() {
-			public void run() {
-				sender.send(mutant.toByteArray(mutant));
-			}
-		}.start();
-	}
-
-	
-
 	/**
 	 * Método encargado de retonar las estadisticas
 	 * 
@@ -158,10 +153,10 @@ public class MutantService {
 		Long countAll = mutantRepository.count();
 		Long countMutant = mutantRepository.countByMutantTrue();
 		Long countHuman = countAll - countMutant;
-		if(countHuman == 0) {
+		if (countHuman == 0) {
 			ratio = 1D;
 		} else {
-			ratio = countMutant.doubleValue()/countHuman.doubleValue();
+			ratio = countMutant.doubleValue() / countHuman.doubleValue();
 		}
 		stats.setCount_human_dna(countHuman);
 		stats.setCount_mutant_dna(countMutant);
@@ -169,48 +164,63 @@ public class MutantService {
 		return new ResponseEntity<>(stats, HttpStatus.OK);
 	}
 
-	public static int evaluateDiagonal(String[][] dna) throws MutantAnalyzerExceptionHandler {    
-        String[] principal = new String[dna.length];
-        String[] secondary = new String[dna.length];
-        int count = 0;        
-        for(int i=0;i<dna.length;i++){
-            for(int j=0;j<dna[i].length;j++){
-                if(i==j){
-                    principal[i] = dna[i][j];
-                }
-                 
-                if(i+j == dna.length-1){
-                    secondary[i] = dna[i][j];
-                }
-            }
-        }
-        String charDna = "";
-        for (int i = 0; i < principal.length; i++) {
-        	charDna += principal[i];
+	/**
+	 * Método encargado de evaluar la matriz de adn, para determinar si en alguna de
+	 * las diagonales conincide la base nitrogenada
+	 * 
+	 * @param dna
+	 * @return
+	 * @throws MutantAnalyzerExceptionHandler
+	 */
+	public static int evaluateDiagonal(String[][] dna) throws MutantAnalyzerExceptionHandler {
+		String[] principal = new String[dna.length];
+		String[] secondary = new String[dna.length];
+		int count = 0;
+		for (int i = 0; i < dna.length; i++) {
+			for (int j = 0; j < dna[i].length; j++) {
+				if (i == j) {
+					principal[i] = dna[i][j];
+				}
+
+				if (i + j == dna.length - 1) {
+					secondary[i] = dna[i][j];
+				}
+			}
 		}
-        if ((checkRow(charDna))) {
+		String charDna = "";
+		for (int i = 0; i < principal.length; i++) {
+			charDna += principal[i];
+		}
+		if ((checkRow(charDna))) {
 			count++;
 		}
-        charDna = "";
-        for (int i = 0; i < secondary.length; i++) {
-        	charDna += secondary[i];
-        }
-        if ((checkRow(charDna))) {
-        	count++;
-        }
-        return count;
-    }
-     
-    private static String[][] getMatriz(String[] dnas){
-    	char stringArray[] = dnas[0].toCharArray();
-    	String[][] charDna = new String[stringArray.length][stringArray.length];
-        for (int i = 0; i < stringArray.length; i++) {
-        	char dnaChar[] = dnas[i].toCharArray();
-        	for (int j = 0; j < dnaChar.length; j++) {
-        		charDna[i][j] = String.valueOf(dnaChar[j]);
-        	}
-        }
-        return charDna;
-    }
-    
+		charDna = "";
+		for (int i = 0; i < secondary.length; i++) {
+			charDna += secondary[i];
+		}
+		if ((checkRow(charDna))) {
+			count++;
+		}
+		return count;
+	}
+
+	/**
+	 * Método encargdo de convertir el arreglo de adn's en una matriz para ser
+	 * evaluada
+	 * 
+	 * @param dnas
+	 * @return
+	 */
+	private static String[][] getMatriz(String[] dnas) {
+		char stringArray[] = dnas[0].toCharArray();
+		String[][] charDna = new String[stringArray.length][stringArray.length];
+		for (int i = 0; i < stringArray.length; i++) {
+			char dnaChar[] = dnas[i].toCharArray();
+			for (int j = 0; j < dnaChar.length; j++) {
+				charDna[i][j] = String.valueOf(dnaChar[j]);
+			}
+		}
+		return charDna;
+	}
+
 }
