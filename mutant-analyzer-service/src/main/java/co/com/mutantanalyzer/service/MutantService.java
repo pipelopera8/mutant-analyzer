@@ -7,9 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import co.com.mutantanalyzer.dto.DnaDTO;
-import co.com.mutantanalyzer.exception.MutantAnalyzerExceptionHandler;
+import co.com.mutantanalyzer.dto.StatsDTO;
+import co.com.mutantanalyzer.general.exception.MutantAnalyzerExceptionHandler;
 import co.com.mutantanalyzer.model.Mutant;
 import co.com.mutantanalyzer.rabbitmq.Sender;
+import co.com.mutantanalyzer.repository.MutantRepository;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -25,6 +27,9 @@ public class MutantService {
 
 	@Autowired
 	private Sender sender;
+
+	@Autowired
+	private MutantRepository mutantRepository;
 
 	/**
 	 * Método en cargado en determinar si la cadena de adn ingresada es un mutante o
@@ -45,40 +50,31 @@ public class MutantService {
 						count++;
 					}
 				}
-				if (count <= 1) {
-					for (String string : converterRowToColumn(dna.getDna())) {
-						if ((checkRow(string))) {
-							count++;
-						}
+				for (String string : converterRowToColumn(dna.getDna())) {
+					if ((checkRow(string))) {
+						count++;
 					}
 				}
 				if (count <= 1) {
 					log.info("No es un mutante");
 					mutant.setMutant(false);
 					send(mutant);
-//					mutantRepository.save(mutant);
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				} else {
 					log.info("Si es un mutante");
 					mutant.setMutant(true);
 					send(mutant);
-//					mutantRepository.save(mutant);
 					return new ResponseEntity<>(HttpStatus.OK);
 				}
 			} else {
 				mutant.setMutant(false);
 				send(mutant);
-//				mutantRepository.save(mutant);
 				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
 		} catch (MutantAnalyzerExceptionHandler e) {
 			mutant.setMutant(false);
 			send(mutant);
-//			mutantRepository.save(mutant);
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -142,4 +138,27 @@ public class MutantService {
 		}.start();
 	}
 
+	
+
+	/**
+	 * Método encargado de retonar las estadisticas
+	 * 
+	 * @param dna
+	 * @return
+	 * @throws MutantAnalyzerExceptionHandler
+	 */
+	public ResponseEntity<Object> getStats() throws MutantAnalyzerExceptionHandler {
+		StatsDTO stats = new StatsDTO();
+		Double ratio = 0D;
+		Long countAll = mutantRepository.count();
+		Long countMutant = mutantRepository.countByMutantTrue();
+		Long countHuman = countAll - countMutant;
+		if(countHuman != 0) {
+			ratio = countMutant.doubleValue()/countHuman.doubleValue();
+		}
+		stats.setCount_human_dna(countHuman);
+		stats.setCount_mutant_dna(countMutant);
+		stats.setRatio(ratio);
+		return new ResponseEntity<>(stats, HttpStatus.OK);
+	}
 }

@@ -10,7 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 
-import co.com.mutantanalyzer.exception.MutantAnalyzerExceptionHandler;
+import co.com.mutantanalyzer.general.exception.MutantAnalyzerExceptionHandler;
 
 @SpringBootTest
 class SenderTest {

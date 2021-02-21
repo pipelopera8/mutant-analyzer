@@ -1,5 +1,5 @@
 
-package co.com.mutantanalyzer.exception;
+package co.com.mutantanalyzer.general.exception;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

@@ -11,13 +11,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import co.com.mutantanalyzer.general.util.BooleanToStringConverter;
-import lombok.Data;
-import lombok.ToString;
 
 @Entity
 @Table(name = "TMA_ADN")
-@Data
-@ToString
 public class Mutant implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -30,5 +26,21 @@ public class Mutant implements Serializable {
 	@Convert(converter = BooleanToStringConverter.class)
 	@Column(name = "SNMUTANTE")
 	private Boolean mutant;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Boolean getMutant() {
+		return mutant;
+	}
+
+	public void setMutant(Boolean mutant) {
+		this.mutant = mutant;
+	}
 
 }

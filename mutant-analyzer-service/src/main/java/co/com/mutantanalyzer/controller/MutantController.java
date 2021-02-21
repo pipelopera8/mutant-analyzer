@@ -16,7 +16,7 @@ public class MutantController {
 	private MutantService mutantService;
 
 	@PostMapping
-	public ResponseEntity<Object> sendMessage(@RequestBody DnaDTO dna) {
+	public ResponseEntity<Object> ismutant(@RequestBody DnaDTO dna) {
 		return mutantService.isMutant(dna);
 	}
 }
