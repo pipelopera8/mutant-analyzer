@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import co.com.mutantanalyzer.dto.DnaDTO;
 import co.com.mutantanalyzer.dto.StatsDTO;
+import co.com.mutantanalyzer.general.constant.Constant;
 import co.com.mutantanalyzer.general.exception.MutantAnalyzerExceptionHandler;
 import co.com.mutantanalyzer.model.Mutant;
 import co.com.mutantanalyzer.repository.MutantRepository;
@@ -27,11 +28,6 @@ public class MutantService {
 	@Autowired
 	private MutantRepository mutantRepository;
 
-	final static String A = "AAAA";
-	final static String C = "CCCC";
-	final static String G = "GGGG";
-	final static String T = "TTTT";
-	
 	/**
 	 * Método en cargado en determinar si la cadena de adn ingresada es un mutante o
 	 * no
@@ -54,8 +50,7 @@ public class MutantService {
 						count++;
 					}
 				}
-				log.info(
-						"Si en las filas ya encontro por lo menos dos conincidencias deja de evaluar el resto de la matriz");
+				log.info("Si en las filas ya encontro por lo menos dos conincidencias deja de evaluar el resto de la matriz");
 				if (count < 2) {
 					log.info("Convierte las columnas en filas para hacer la misma evaluación por filas");
 					for (String string : converterRowToColumn(dna.getDna())) {
@@ -64,15 +59,12 @@ public class MutantService {
 						}
 					}
 				}
-				log.info(
-						"Si con las filas y las columnas ya encontro por lo menos dos conincidencias deja de evaluar el resto de la matriz");
+				log.info("Si con las filas y las columnas ya encontro por lo menos dos conincidencias deja de evaluar el resto de la matriz");
 				if (count < 2) {
-					log.info(
-							"Evalua las diagonales, tanto la principal como la inversa para deerminar si tiene o no mas coincidencias de mutante");
+					log.info("Evalua las diagonales, tanto la principal como la inversa para deerminar si tiene o no mas coincidencias de mutante");
 					count += evaluateDiagonal(getMatriz(dna.getDna()));
 				}
-				log.info(
-						"Determina si  es un mutante o un humano, si es un mutante es porque el contador de concidiencias es por menos de 2 o mas");
+				log.info("Determina si  es un mutante o un humano, si es un mutante es porque el contador de concidiencias es por menos de 2 o mas");
 				if (count < 2) {
 					log.info("No es un mutante");
 					mutant.setMutant(false);
@@ -86,10 +78,8 @@ public class MutantService {
 				mutant.setMutant(false);
 				response = new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
-		} catch (MutantAnalyzerExceptionHandler e) {
+		} catch (Exception e) {
 			log.info("si la cadena tiene alguna letra diferente de acgt");
-			mutant.setMutant(false);
-			response = new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 		
 		new Thread() {
@@ -107,14 +97,14 @@ public class MutantService {
 	 * @param dna
 	 * @return
 	 */
-	private static boolean checkRow(String dna) throws MutantAnalyzerExceptionHandler {
-		if(dna.contains(A) || dna.contains(C) || dna.contains(G) ||dna.contains(T))
+	private static boolean checkRow(String dna){
+		if(dna.contains(Constant.A) || dna.contains(Constant.C) || dna.contains(Constant.G) ||dna.contains(Constant.T))
 			return true;
 		return false;
 	}
 
 	/**
-	 * Método encargado de convertir una fila en columna
+	 * Método encargado de convertir columna en fila, para luego ser evaluada de manera mas optima solo la fila
 	 * 
 	 * @param dnas
 	 * @return

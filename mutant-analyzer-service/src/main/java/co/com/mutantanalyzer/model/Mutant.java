@@ -1,9 +1,5 @@
 package co.com.mutantanalyzer.model;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -15,13 +11,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import co.com.mutantanalyzer.general.util.BooleanToStringConverter;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "TMA_ADN")
-@Data
-@Slf4j
 public class Mutant implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -35,24 +27,21 @@ public class Mutant implements Serializable {
 	@Column(name = "SNMUTANTE")
 	private Boolean mutant;
 
-	public byte[] toByteArray(Mutant mutant) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutput out = null;
-		try {
-			out = new ObjectOutputStream(bos);
-			out.writeObject(mutant);
-			out.flush();
-			byte[] bytes = bos.toByteArray();
-			return bytes;
-		} catch (Exception e) {
-			log.error(e.getMessage(),e);
-		} finally {
-			try {
-				bos.close();
-			} catch (IOException ex) {
-				// ignore close exception
-			}
-		}
-		return null;
+	public Long getId() {
+		return id;
 	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Boolean getMutant() {
+		return mutant;
+	}
+
+	public void setMutant(Boolean mutant) {
+		this.mutant = mutant;
+	}
+
+	
 }

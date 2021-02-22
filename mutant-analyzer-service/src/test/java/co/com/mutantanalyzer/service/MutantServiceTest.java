@@ -63,14 +63,6 @@ class MutantServiceTest {
     	assertEquals(response, mutantService.isMutant(dna));
     }
     
-    @Test
-    public void isMutantDistinctLetter() throws MutantAnalyzerExceptionHandler {
-    	DnaDTO dna = new DnaDTO();
-    	ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.FORBIDDEN);;
-    	dna.setDna(new String [] {"ATGCTA","ZAGTGC","TTATGT","AGAAGG","CCCCTA","TCACTG"});
-    	assertEquals(response, mutantService.isMutant(dna));
-    }
-
 
     @Test
     public void isMutantNullDna() throws MutantAnalyzerExceptionHandler {
