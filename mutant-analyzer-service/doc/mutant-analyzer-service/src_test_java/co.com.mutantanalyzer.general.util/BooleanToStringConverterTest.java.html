@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BooleanToStringConverterTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">mutant-analyzer-service (23/02/2021 12:48:03 a. m.)</a> &gt; <a href="../../index.html" class="el_group">mutant-analyzer-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">co.com.mutantanalyzer.general.util</a> &gt; <span class="el_source">BooleanToStringConverterTest.java</span></div><h1>BooleanToStringConverterTest.java</h1><pre class="source lang-java linenums">package co.com.mutantanalyzer.general.util;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import co.com.mutantanalyzer.general.exception.MutantAnalyzerExceptionHandler;
+
+@SpringBootTest
+<span class="fc" id="L15">class BooleanToStringConverterTest {</span>
+
+	@Test
+	void contextLoads() {
+<span class="fc" id="L19">		MockitoAnnotations.initMocks(this);</span>
+<span class="fc" id="L20">	}</span>
+	
+    @InjectMocks
+    @Spy
+    private BooleanToStringConverter converter;
+    
+    @Test
+    public void convertToDatabaseColumnFalse() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L28">    	boolean error = false;</span>
+    	try {
+<span class="fc" id="L30">	    	converter.convertToDatabaseColumn(false);</span>
+<span class="pc" id="L31">        }catch (Exception e) {</span>
+<span class="nc" id="L32">        	error = true;</span>
+		}
+<span class="fc" id="L34">    	assertFalse(error);</span>
+<span class="fc" id="L35">    }</span>
+
+    @Test
+    public void convertToDatabaseColumnTrue() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L39">    	boolean error = false;</span>
+    	try {
+<span class="fc" id="L41">    		converter.convertToDatabaseColumn(true);</span>
+<span class="pc" id="L42">    	}catch (Exception e) {</span>
+<span class="nc" id="L43">    		error = true;</span>
+    	}
+<span class="fc" id="L45">    	assertFalse(error);</span>
+<span class="fc" id="L46">    }</span>
+
+    @Test
+    public void convertToDatabaseColumnNull() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L50">    	assertNotNull(converter.convertToDatabaseColumn(null));</span>
+<span class="fc" id="L51">    }</span>
+    
+    @Test
+    public void convertToEntityAttributeNull() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L55">    	assertNotNull(converter.convertToEntityAttribute(null));</span>
+<span class="fc" id="L56">    }</span>
+    
+    @Test
+    public void convertToEntityAttributeTrue() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L60">    	boolean error = false;</span>
+    	try {
+<span class="fc" id="L62">    		converter.convertToEntityAttribute(&quot;N&quot;);</span>
+<span class="pc" id="L63">    	}catch (Exception e) {</span>
+<span class="nc" id="L64">    		error = true;</span>
+    	}
+<span class="fc" id="L66">    	assertFalse(error);</span>
+<span class="fc" id="L67">    }</span>
+
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span>mutant-analyzer-service (23/02/2021 12:48:03 a. m.)</div></body></html>

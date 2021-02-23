@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MutantServiceTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">mutant-analyzer-service (23/02/2021 12:48:03 a. m.)</a> &gt; <a href="../../index.html" class="el_group">mutant-analyzer-service</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">co.com.mutantanalyzer.service</a> &gt; <span class="el_source">MutantServiceTest.java</span></div><h1>MutantServiceTest.java</h1><pre class="source lang-java linenums">package co.com.mutantanalyzer.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import co.com.mutantanalyzer.dto.DnaDTO;
+import co.com.mutantanalyzer.general.exception.MutantAnalyzerExceptionHandler;
+import co.com.mutantanalyzer.repository.MutantRepository;
+
+@SpringBootTest
+<span class="fc" id="L23">class MutantServiceTest {</span>
+
+	@Test
+	void contextLoads() {
+<span class="fc" id="L27">		MockitoAnnotations.initMocks(this);</span>
+<span class="fc" id="L28">	}</span>
+	
+    @Mock
+    private MessageSource messageSource;
+
+    @Mock
+    private MutantRepository mutantRepository;
+
+    @InjectMocks
+    @Spy
+    private MutantService mutantService;
+
+    @Test
+    public void isMutantTrue() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L42">    	DnaDTO dna = new DnaDTO();</span>
+<span class="fc" id="L43">    	ResponseEntity&lt;Object&gt; response = new ResponseEntity&lt;&gt;(HttpStatus.OK);;</span>
+<span class="fc" id="L44">        dna.setDna(new String [] {&quot;ATGCTA&quot;,&quot;CAGTGC&quot;,&quot;TTATGT&quot;,&quot;AGAAGG&quot;,&quot;CCCCTA&quot;,&quot;TCACTG&quot;});</span>
+        try {
+<span class="fc" id="L46">        assertEquals(response, mutantService.isMutant(dna));</span>
+<span class="pc" id="L47">        }catch (Exception e) {</span>
+		}
+<span class="fc" id="L49">    }</span>
+
+    @Test
+    public void isMutantNull() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L53">    	ResponseEntity&lt;Object&gt; response = new ResponseEntity&lt;&gt;(HttpStatus.FORBIDDEN);;</span>
+<span class="fc" id="L54">    	DnaDTO dna = new DnaDTO();</span>
+<span class="fc" id="L55">    	assertEquals(response, mutantService.isMutant(dna));</span>
+<span class="fc" id="L56">    }</span>
+
+    @Test
+    public void isMutantFalse() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L60">    	DnaDTO dna = new DnaDTO();</span>
+<span class="fc" id="L61">    	ResponseEntity&lt;Object&gt; response = new ResponseEntity&lt;&gt;(HttpStatus.FORBIDDEN);;</span>
+<span class="fc" id="L62">    	dna.setDna(new String [] {&quot;ATCCGA&quot;,&quot;CCGTGC&quot;,&quot;TTATGT&quot;,&quot;AGAGTG&quot;,&quot;CCGCTA&quot;,&quot;TCACTG&quot;});</span>
+<span class="fc" id="L63">    	assertEquals(response, mutantService.isMutant(dna));</span>
+<span class="fc" id="L64">    }</span>
+    
+
+    @Test
+    public void isMutantNullDna() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L69">    	ResponseEntity&lt;Object&gt; response = new ResponseEntity&lt;&gt;(HttpStatus.FORBIDDEN);;</span>
+<span class="fc" id="L70">    	assertEquals(response, mutantService.isMutant(null));</span>
+<span class="fc" id="L71">    }</span>
+    
+    @Test
+    public void getStatsNotNull() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L75">    	assertNotNull(mutantService.getStats());</span>
+<span class="fc" id="L76">    }</span>
+    
+    @Test
+    public void getStatsNull() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L80">    	assertNotEquals(null, mutantService.getStats());</span>
+<span class="fc" id="L81">    }</span>
+    
+    @Test
+    public void getStats() throws MutantAnalyzerExceptionHandler {
+<span class="fc" id="L85">    	assertNotEquals(null, mutantService.getStats());</span>
+<span class="fc" id="L86">    }</span>
+    
+    @Test
+    public void getStatsOk() throws MutantAnalyzerExceptionHandler {
+    	
+<span class="fc" id="L91">    	ResponseEntity&lt;Object&gt; response = new ResponseEntity&lt;&gt;(HttpStatus.OK);;</span>
+<span class="fc" id="L92">    	Long countAll = 10L;</span>
+<span class="fc" id="L93">		Long countMutant = 4l;</span>
+		
+<span class="fc" id="L95">    	Mockito.when(mutantRepository.count()).thenReturn(countAll);</span>
+<span class="fc" id="L96">    	Mockito.when(mutantRepository.countByMutantTrue()).thenReturn(countMutant);</span>
+    	
+<span class="fc" id="L98">    	assertNotEquals(response, mutantService.getStats());</span>
+<span class="fc" id="L99">    }</span>
+    
+    @Test
+    public void getStatsMultiplyZero() throws MutantAnalyzerExceptionHandler {
+    	
+<span class="fc" id="L104">    	ResponseEntity&lt;Object&gt; responseOk = new ResponseEntity&lt;&gt;(HttpStatus.OK);;</span>
+<span class="fc" id="L105">    	Long countAll = 0L;</span>
+<span class="fc" id="L106">    	Long countMutant = 0l;</span>
+    	
+<span class="fc" id="L108">    	Mockito.when(mutantRepository.count()).thenReturn(countAll);</span>
+<span class="fc" id="L109">    	Mockito.when(mutantRepository.countByMutantTrue()).thenReturn(countMutant);</span>
+<span class="fc" id="L110">    	Mockito.when(mutantRepository.countByMutantTrue()).thenReturn(countMutant);</span>
+    	try {
+<span class="fc" id="L112">    		assertNotEquals(responseOk, mutantService.getStats());</span>
+<span class="pc" id="L113">    	} catch (Exception e) {</span>
+		}
+<span class="fc" id="L115">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span>mutant-analyzer-service (23/02/2021 12:48:03 a. m.)</div></body></html>
