@@ -1,0 +1,37 @@
+image: maven:3.6.3
+
+definitions:
+    steps:
+      - step: &Deploy
+          image: challengemercadolibre/pipeline:latest
+          name: Build and Test
+          caches:
+            - maven
+          script:
+            - mvn -B verify --file mutant-analyzer-service/pom.xml
+            # login amazon
+            - eval $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)   
+            # login docker hub
+            - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            # build and push docker image
+            - docker build -t "${DOCKER_IMAGE}:${BITBUCKET_COMMIT}" .
+            - docker push "${DOCKER_IMAGE}:${BITBUCKET_COMMIT}"
+            # Update task definition & service
+            - aws eks --region us-east-1 update-kubeconfig --name cluster-cer
+            - kubectl set image deployment/${SERVICE_NAME} ${SERVICE_NAME}=${DOCKER_IMAGE}:${BITBUCKET_COMMIT}
+          after-script:
+              # Collect checkstyle results, if any, and convert to Bitbucket Code Insights.
+            - pipe: atlassian/checkstyle-report:0.2.0
+      - step: &Security
+          name: Security Scan
+          script:
+            # Run a security scan for sensitive data.
+            # See more security tools at https://bitbucket.org/product/features/pipelines/integrations?&category=security
+            - pipe: atlassian/git-secrets-scan:0.4.3      
+pipelines:
+  branches:
+    master:
+      - step: *Deploy
+  pull-requests:
+    '**':
+      - step: *Security
