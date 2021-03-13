@@ -56,7 +56,7 @@ Se desarrollo una implementación de integración continua, esta implementación
 - Se conecta al servicio de aws de kueberne, previo a esto se construye la infraestructura adecuada en aws con terraform
 - despliega la imagen del docker con kubernete
 
-Se adjunta todo el código en la carpeta terraform, y el bitbucket-pipelines.yml los cuales son los encargados de generar tanto la infraestructura como la integración continua, esto funciona de manera automática al hacer un commit en master (me toco publicar el proyecto en bitbucket para hacer las ejecuciones de los pipelines, acá les dejo link de acceso https://bitbucket.org/challegemercadolibre/mutant-analyzer/src/master/)
+Se adjunta todo el código en la carpeta terraform, y el bitbucket-pipelines.yml los cuales son los encargados de generar tanto la infraestructura como la integración continua, esto funciona de manera automática al hacer un commit en master (me toco publicar el proyecto en bitbucket para hacer las ejecuciones de los pipelines
 
 ## Entorno local
 Para la ejecución local del proyecto solo se necesita tener java 1.8 y maven instalados, el servicio sube por el puerto 7220
